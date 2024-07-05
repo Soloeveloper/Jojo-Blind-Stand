@@ -28,7 +28,6 @@ textBox.Parent = frame
 local originalPosition = nil
 local following = false
 local blinding = false
-local noclipConnection = nil
 
 local function findPlayerByPartialName(partialName)
     local lowerPartialName = partialName:lower()
@@ -190,4 +189,10 @@ textBox.FocusLost:Connect(function(enterPressed)
             print("Invalid format. Please use 'Stand [Username]', 'Blind [Username]', 'Unstand', or 'Unblind'.")
         end
     end
+end)
+
+game.Players.LocalPlayer.CharacterAdded:Connect(function()
+    screenGui:Destroy()
+    local newScreenGui = screenGui:Clone()
+    newScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 end)
