@@ -1,0 +1,193 @@
+-- Follow Exprvssed_2 and Exprvssed or we will hack your account!1!1! (Jk)
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 100)
+frame.Position = UDim2.new(0.5, -150, 0.5, -50)
+frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+frame.BackgroundTransparency = 0.5
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
+
+local textBox = Instance.new("TextBox")
+textBox.Size = UDim2.new(1, -20, 0, 50)
+textBox.Position = UDim2.new(0, 10, 0, 25)
+textBox.Font = Enum.Font.SourceSans
+textBox.TextSize = 20
+textBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+textBox.PlaceholderText = "Enter Stand [Username], Blind [Username], Unstand, or Unblind"
+textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+textBox.BackgroundTransparency = 0.8
+textBox.Text = ""
+textBox.Parent = frame
+
+local originalPosition = nil
+local following = false
+local blinding = false
+local noclipConnection = nil
+
+local function findPlayerByPartialName(partialName)
+    local lowerPartialName = partialName:lower()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player.Name:lower():sub(1, #lowerPartialName) == lowerPartialName then
+            return player
+        end
+    end
+    return nil
+end
+
+local function findLeftArm(character)
+    return character:FindFirstChild("Left Arm") or character:FindFirstChild("LeftUpperArm") or
+           character:FindFirstChild("LeftLowerArm") or character:FindFirstChild("LeftHand")
+end
+
+local function noclip(state)
+    local character = game.Players.LocalPlayer.Character
+    if character then
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = not state
+            end
+        end
+    end
+end
+
+local function followPlayer(targetPlayer)
+    local player = game.Players.LocalPlayer
+    local playerRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+
+    if targetPlayer and targetPlayer.Character and playerRootPart and humanoid then
+        local targetLeftArm = findLeftArm(targetPlayer.Character)
+
+        if targetLeftArm then
+            for _, part in pairs(player.Character:GetChildren()) do
+                if part:IsA("BasePart") then
+                    part.Anchored = false
+                end
+            end
+            humanoid.JumpPower = 0
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
+            humanoid.WalkSpeed = 0
+
+            following = true
+            local RunService = game:GetService("RunService")
+            while following do
+                local targetPosition = targetLeftArm.Position + Vector3.new(-1, 0, 0)
+                playerRootPart.CFrame = CFrame.new(playerRootPart.Position, targetLeftArm.Position)
+                playerRootPart.CFrame = playerRootPart.CFrame:Lerp(CFrame.new(targetPosition), 0.1)
+                RunService.RenderStepped:Wait()
+            end
+        else
+            print("Target player's left arm not found.")
+        end
+    else
+        print("Target player not available.")
+    end
+end
+
+local function blindPlayer(targetPlayer)
+    local player = game.Players.LocalPlayer
+    local playerRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+
+    if targetPlayer and targetPlayer.Character and playerRootPart and humanoid then
+        local targetHead = targetPlayer.Character:FindFirstChild("Head")
+
+        if targetHead then
+            for _, part in pairs(player.Character:GetChildren()) do
+                if part:IsA("BasePart") then
+                    part.Anchored = false
+                end
+            end
+            humanoid.JumpPower = 0
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
+            humanoid.WalkSpeed = 0
+
+            noclip(true)
+            blinding = true
+            local RunService = game:GetService("RunService")
+            while blinding do
+                local targetPosition = targetHead.Position + targetHead.CFrame.LookVector * 0.5
+                playerRootPart.CFrame = CFrame.new(targetPosition, targetHead.Position)
+                RunService.RenderStepped:Wait()
+            end
+        else
+            print("Target player's head not found.")
+        end
+    else
+        print("Target player not available.")
+    end
+end
+
+local function movePlayerBack()
+    local player = game.Players.LocalPlayer
+    local playerRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+    
+    if playerRootPart and originalPosition and humanoid then
+        local TweenService = game:GetService("TweenService")
+        local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        local goal = {}
+        goal.CFrame = CFrame.new(originalPosition)
+        
+        local tween = TweenService:Create(playerRootPart, tweenInfo, goal)
+        tween:Play()
+        
+        humanoid.JumpPower = 50
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+        humanoid.WalkSpeed = 16
+        
+        originalPosition = nil
+        noclip(false)
+    else
+        print("Original position not found or not available.")
+    end
+end
+
+textBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        local text = textBox.Text
+        if text:sub(1, 6) == "Stand " then
+            local targetPlayerName = text:sub(7)
+            local targetPlayer = findPlayerByPartialName(targetPlayerName)
+            
+            if targetPlayer then
+                local player = game.Players.LocalPlayer
+                local playerRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if playerRootPart then
+                    originalPosition = playerRootPart.Position
+                    followPlayer(targetPlayer)
+                end
+            else
+                print("Player not found.")
+            end
+        elseif text == "Unstand" then
+            following = false
+            movePlayerBack()
+        elseif text:sub(1, 6) == "Blind " then
+            local targetPlayerName = text:sub(7)
+            local targetPlayer = findPlayerByPartialName(targetPlayerName)
+            
+            if targetPlayer then
+                local player = game.Players.LocalPlayer
+                local playerRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if playerRootPart then
+                    originalPosition = playerRootPart.Position
+                    blindPlayer(targetPlayer)
+                end
+            else
+                print("Player not found.")
+            end
+        elseif text == "Unblind" then
+            blinding = false
+            movePlayerBack()
+        else
+            print("Invalid format. Please use 'Stand [Username]', 'Blind [Username]', 'Unstand', or 'Unblind'.")
+        end
+    end
+end)
