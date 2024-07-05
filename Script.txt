@@ -36,8 +36,8 @@ local originalPosition = nil
 local following = false
 local blinding = false
 
-local function findPlayerByName(playerName)
-    local lowerPartialName = playerName:lower()
+local function findPlayerByPartialName(partialName)
+    local lowerPartialName = partialName:lower()
     for _, player in pairs(game.Players:GetPlayers()) do
         if player.Name:lower():sub(1, #lowerPartialName) == lowerPartialName then
             return player
@@ -88,11 +88,24 @@ local function followPlayer(targetPlayer)
                 playerRootPart.CFrame = playerRootPart.CFrame:Lerp(CFrame.new(targetPosition), 0.1)
                 RunService.RenderStepped:Wait()
             end
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "Success",
+                Text = "Successfully executed Stand command on " .. targetPlayer.Name,
+                Icon = "rbxassetid://18346190315"  -- Success decal ID
+            })
         else
-            print("Target player's left arm not found.")
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "Error",
+                Text = "Target player's left arm not found.",
+                Icon = "rbxassetid://18346235210"  -- Error decal ID
+            })
         end
     else
-        print("Target player not available.")
+        game.StarterGui:SetCore("SendNotification", {
+            Title = "Error",
+            Text = "Target player not available.",
+            Icon = "rbxassetid://18346235210"  -- Error decal ID
+        })
     end
 end
 
@@ -122,11 +135,24 @@ local function blindPlayer(targetPlayer)
                 playerRootPart.CFrame = CFrame.new(targetPosition, targetHead.Position)
                 RunService.RenderStepped:Wait()
             end
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "Success",
+                Text = "Successfully executed Blind command on " .. targetPlayer.Name,
+                Icon = "rbxassetid://18346190315"  -- Success decal ID
+            })
         else
-            print("Target player's head not found.")
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "Error",
+                Text = "Target player's head not found.",
+                Icon = "rbxassetid://18346235210"  -- Error decal ID
+            })
         end
     else
-        print("Target player not available.")
+        game.StarterGui:SetCore("SendNotification", {
+            Title = "Error",
+            Text = "Target player not available.",
+            Icon = "rbxassetid://18346235210"  -- Error decal ID
+        })
     end
 end
 
@@ -151,16 +177,20 @@ local function movePlayerBack()
         originalPosition = nil
         noclip(false)
     else
-        print("Original position not found or not available.")
+        game.StarterGui:SetCore("SendNotification", {
+            Title = "Error",
+            Text = "Original position not found or not available.",
+            Icon = "rbxassetid://18346235210"  -- Error decal ID
+        })
     end
 end
 
 textBox.FocusLost:Connect(function(enterPressed)
     if enterPressed then
         local text = textBox.Text
-        if text:sub(1, 6):lower() == "stand " then
+        if text:sub(1, 6) == "Stand " then
             local targetPlayerName = text:sub(7)
-            local targetPlayer = findPlayerByName(targetPlayerName)
+            local targetPlayer = findPlayerByPartialName(targetPlayerName)
             
             if targetPlayer then
                 local player = game.Players.LocalPlayer
@@ -170,14 +200,23 @@ textBox.FocusLost:Connect(function(enterPressed)
                     followPlayer(targetPlayer)
                 end
             else
-                print("Player not found.")
+                game.StarterGui:SetCore("SendNotification", {
+                    Title = "Error",
+                    Text = "Player not found.",
+                    Icon = "rbxassetid://18346235210"  -- Error decal ID
+                })
             end
-        elseif text:lower() == "unstand" then
+        elseif text == "Unstand" then
             following = false
             movePlayerBack()
-        elseif text:sub(1, 6):lower() == "blind " then
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "Success",
+                Text = "Successfully executed Unstand command.",
+                Icon = "rbxassetid://18346190315"  -- Success decal ID
+            })
+        elseif text:sub(1, 6) == "Blind " then
             local targetPlayerName = text:sub(7)
-            local targetPlayer = findPlayerByName(targetPlayerName)
+            local targetPlayer = findPlayerByPartialName(targetPlayerName)
             
             if targetPlayer then
                 local player = game.Players.LocalPlayer
@@ -187,13 +226,26 @@ textBox.FocusLost:Connect(function(enterPressed)
                     blindPlayer(targetPlayer)
                 end
             else
-                print("Player not found.")
+                game.StarterGui:SetCore("SendNotification", {
+                    Title = "Error",
+                    Text = "Player not found.",
+                    Icon = "rbxassetid://18346235210"  -- Error decal ID
+                })
             end
-        elseif text:lower() == "unblind" then
+        elseif text == "Unblind" then
             blinding = false
             movePlayerBack()
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "Success",
+                Text = "Successfully executed Unblind command.",
+                Icon = "rbxassetid://18346190315"  -- Success decal ID
+            })
         else
-            print("Invalid format. Please use 'Stand [Username]', 'Blind [Username]', 'Unstand', or 'Unblind'.")
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "Error",
+                Text = "Invalid format. Please use 'Stand [Username]', 'Blind [Username]', 'Unstand', or 'Unblind'.",
+                Icon = "rbxassetid://18346235210"  -- Error decal ID
+            })
         end
     end
 end)
