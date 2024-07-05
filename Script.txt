@@ -36,8 +36,8 @@ local originalPosition = nil
 local following = false
 local blinding = false
 
-local function findPlayerByPartialName(partialName)
-    local lowerPartialName = partialName:lower()
+local function findPlayerByName(playerName)
+    local lowerPartialName = playerName:lower()
     for _, player in pairs(game.Players:GetPlayers()) do
         if player.Name:lower():sub(1, #lowerPartialName) == lowerPartialName then
             return player
@@ -158,9 +158,9 @@ end
 textBox.FocusLost:Connect(function(enterPressed)
     if enterPressed then
         local text = textBox.Text
-        if text:sub(1, 6) == "Stand " then
+        if text:sub(1, 6):lower() == "stand " then
             local targetPlayerName = text:sub(7)
-            local targetPlayer = findPlayerByPartialName(targetPlayerName)
+            local targetPlayer = findPlayerByName(targetPlayerName)
             
             if targetPlayer then
                 local player = game.Players.LocalPlayer
@@ -172,12 +172,12 @@ textBox.FocusLost:Connect(function(enterPressed)
             else
                 print("Player not found.")
             end
-        elseif text == "Unstand" then
+        elseif text:lower() == "unstand" then
             following = false
             movePlayerBack()
-        elseif text:sub(1, 6) == "Blind " then
+        elseif text:sub(1, 6):lower() == "blind " then
             local targetPlayerName = text:sub(7)
-            local targetPlayer = findPlayerByPartialName(targetPlayerName)
+            local targetPlayer = findPlayerByName(targetPlayerName)
             
             if targetPlayer then
                 local player = game.Players.LocalPlayer
@@ -189,7 +189,7 @@ textBox.FocusLost:Connect(function(enterPressed)
             else
                 print("Player not found.")
             end
-        elseif text == "Unblind" then
+        elseif text:lower() == "unblind" then
             blinding = false
             movePlayerBack()
         else
