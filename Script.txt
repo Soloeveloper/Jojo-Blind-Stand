@@ -1,29 +1,36 @@
 -- Follow Exprvssed_2 and Exprvssed or we will hack your account!1!1! (Jk)
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local function createGUI()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "StandBlindGui"
+    screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 300, 0, 100)
-frame.Position = UDim2.new(0.5, -150, 0.5, -50)
-frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-frame.BackgroundTransparency = 0.5
-frame.BorderSizePixel = 0
-frame.Active = true
-frame.Draggable = true
-frame.Parent = screenGui
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 300, 0, 100)
+    frame.Position = UDim2.new(0.5, -150, 0.5, -50)
+    frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    frame.BackgroundTransparency = 0.5
+    frame.BorderSizePixel = 0
+    frame.Active = true
+    frame.Draggable = true
+    frame.Parent = screenGui
 
-local textBox = Instance.new("TextBox")
-textBox.Size = UDim2.new(1, -20, 0, 50)
-textBox.Position = UDim2.new(0, 10, 0, 25)
-textBox.Font = Enum.Font.SourceSans
-textBox.TextSize = 20
-textBox.TextColor3 = Color3.fromRGB(0, 0, 0)
-textBox.PlaceholderText = "Enter Stand [Username], Blind [Username], Unstand, or Unblind"
-textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-textBox.BackgroundTransparency = 0.8
-textBox.Text = ""
-textBox.Parent = frame
+    local textBox = Instance.new("TextBox")
+    textBox.Size = UDim2.new(1, -20, 0, 50)
+    textBox.Position = UDim2.new(0, 10, 0, 25)
+    textBox.Font = Enum.Font.SourceSans
+    textBox.TextSize = 20
+    textBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+    textBox.PlaceholderText = "Enter Stand [Username], Blind [Username], Unstand, or Unblind"
+    textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.BackgroundTransparency = 0.8
+    textBox.Text = ""
+    textBox.Parent = frame
+
+    return textBox
+end
+
+local textBox = createGUI()
 
 local originalPosition = nil
 local following = false
@@ -192,7 +199,5 @@ textBox.FocusLost:Connect(function(enterPressed)
 end)
 
 game.Players.LocalPlayer.CharacterAdded:Connect(function()
-    screenGui:Destroy()
-    local newScreenGui = screenGui:Clone()
-    newScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    textBox = createGUI()
 end)
